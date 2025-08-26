@@ -1,8 +1,14 @@
+#include <dummy.h>
+
+#include <Arduino.h>
 #include <SPI.h>
 #include <MFRC522.h>
 
 #define RST_PIN 22   // Reset pin
 #define SS_PIN  5    // SDA/SS pin
+
+#define BUZZER_PIN 25
+#define BUZZER_CHANNEL 0
 
 MFRC522 mfrc522(SS_PIN, RST_PIN); // Create MFRC522 instance
 
@@ -13,6 +19,9 @@ void setup() {
   SPI.begin();        // Init SPI bus
   mfrc522.PCD_Init(); // Init MFRC522 reader
   Serial.println("Scan a card...");
+
+  // Init buzzer
+  ledcSetup(BUZZER_CHANNEL, 1000, 8);
 }
 
 void loop() {
@@ -38,6 +47,10 @@ void loop() {
   MFRC522::PICC_Type piccType = mfrc522.PICC_GetType(mfrc522.uid.sak);
   Serial.print("PICC Type: ");
   Serial.println(mfrc522.PICC_GetTypeName(piccType));
+
+  ledcWrite(BUZZER_CHANNEL, 128); // 50% duty cycle
+  delay(500);
+  ledcWrite(BUZZER_CHANNEL, 0); // 50% duty cycle
 
   // Halt communication with this card so you can scan again
   mfrc522.PICC_HaltA();
